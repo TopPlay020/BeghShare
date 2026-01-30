@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="BeghCore/BeghCore.csproj" />
+  <Project Path="BeghShare/BeghShare.csproj" Id="b4b45559-d1e3-456f-adb6-17c570b9f36c" />
+</Solution>
