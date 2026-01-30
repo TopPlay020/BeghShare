@@ -1,8 +1,6 @@
-﻿using BeghCore;
+using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Events;
-using System.Diagnostics;
-using System.Text;
 
 namespace BeghShare.Services
 {
@@ -14,10 +12,9 @@ namespace BeghShare.Services
         [EventHandler]
         public async void OnSendPeerControlRequestEvent(SendPeerControlRequestEvent e)
         {
-            byte[] sendBytes = Encoding.UTF8.GetBytes(SendPeerControlRequestMsg);
-            Core.SendEvent(new UdpMsgSendEvent()
+            Core.SendEvent(new UdpMsgSendEvent
             {
-                Data = sendBytes,
+                Data = SendPeerControlRequestMsg,
                 RemoteEndPoint = e.PeerInfo.IPEndPoint
             });
         }
@@ -25,15 +22,16 @@ namespace BeghShare.Services
         [EventHandler]
         public async void OnUdpMsgReceived(UdpMsgReceivedEvent e)
         {
-            string msg = Encoding.UTF8.GetString(e.Data);
-            if (msg.StartsWith(SendPeerControlRequestMsg))
+            if (e.Data.StartsWith(SendPeerControlRequestMsg))
             {
                 var senderPeer = Core.GetService<DiscoveryService>().Peers.FirstOrDefault(p => p.IP.ToString() == e.RemoteEndPoint.Address.ToString());
                 if (senderPeer == null)
                 {
                     //TODO: I need To Notify DiscoveryService that there is new Ip Addresse !!!!
                 }
+                var mainWindow = Core.GetService<MainWindow>();
                 var result = MessageBox.Show(
+                mainWindow,
                 $"{senderPeer!.Name}:{e.RemoteEndPoint.Address} Want To Control You",
                 "Confirm",
                 MessageBoxButtons.YesNo,

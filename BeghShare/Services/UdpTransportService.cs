@@ -1,9 +1,7 @@
 using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Events;
-using System.Diagnostics;
 using System.Net.Sockets;
-using System.Text;
 
 namespace BeghShare.Services
 {
@@ -26,7 +24,12 @@ namespace BeghShare.Services
                 while (true)
                 {
                     var result = await _udpClient.ReceiveAsync();
-                    _ = Task.Run(() => Core.SendEvent(new UdpMsgReceivedEvent(result)));
+                    var data = EncryptionService.Decode(result.Buffer);
+                    _ = Task.Run(() => Core.SendEvent(new UdpMsgReceivedEvent
+                    {
+                        Data = data,
+                        RemoteEndPoint = result.RemoteEndPoint
+                    }));
                 }
             });
         }
@@ -34,7 +37,8 @@ namespace BeghShare.Services
         [EventHandler]
         public async void OnUdpMsgSend(UdpMsgSendEvent e)
         {
-            await _udpClient.SendAsync(e.Data, e.Data.Length, e.RemoteEndPoint);
+            var bytes = EncryptionService.Encode(e.Data);
+            await _udpClient.SendAsync(bytes, bytes.Length, e.RemoteEndPoint);
         }
     }
 }

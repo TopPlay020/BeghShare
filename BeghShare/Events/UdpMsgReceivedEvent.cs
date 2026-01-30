@@ -1,17 +1,10 @@
-﻿using System.Net;
-using System.Net.Sockets;
+using System.Net;
 
 namespace BeghShare.Events
 {
     public record UdpMsgReceivedEvent
     {
-        public byte[] Data { get; init; }
-        public IPEndPoint RemoteEndPoint { get; init; }
-
-        public UdpMsgReceivedEvent(UdpReceiveResult result)
-        {
-            Data = result.Buffer;
-            RemoteEndPoint = result.RemoteEndPoint;
-        }
+        public required string Data { get; init; }
+        public required IPEndPoint RemoteEndPoint { get; init; }
     }
 }
