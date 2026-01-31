@@ -16,7 +16,7 @@ namespace BeghShare.Services
 
         public UdpTransportService()
         {
-            _udpClient = new UdpClient(APPPORT_UDP) { EnableBroadcast = true };
+            _udpClient = new UdpClient(APPPORT_UDP, AddressFamily.InterNetwork) { EnableBroadcast = true, };
             StartListening();
         }
 
@@ -40,7 +40,7 @@ namespace BeghShare.Services
         [EventHandler]
         public async void OnUdpMsgSend(UdpMsgSendEvent e)
         {
-            var bytes = EncryptionService.Encode(e.Data);
+            var bytes = EncryptionService.Encode($"{e.Header}{e.Data}");
             await _udpClient.SendAsync(bytes, bytes.Length, _ipDict.GetOrAdd(e.Ip, new IPEndPoint(e.Ip, APPPORT_UDP)));
         }
     }

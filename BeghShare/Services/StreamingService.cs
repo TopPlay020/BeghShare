@@ -14,9 +14,10 @@ namespace BeghShare.Services
         [EventHandler]
         public async void OnSendPeerControlRequestEvent(SendPeerControlRequestEvent e)
         {
-            Core.SendEvent(new UdpMsgSendEvent
+            Core.SendEvent(new TcpMsgSendEvent
             {
-                Data = SendPeerControlRequestMsg,
+                Header = SendPeerControlRequestMsg,
+                Data = string.Empty,
                 Ip = e.PeerInfo.IP
             });
         }
@@ -39,7 +40,12 @@ namespace BeghShare.Services
                     MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
-                    Core.SendEvent(new UdpMsgSendEvent { Data = SendPeerControlAcceptMsg, Ip = Ip });
+                    Core.SendEvent(new TcpMsgSendEvent
+                    {
+                        Header = SendPeerControlAcceptMsg,
+                        Data = string.Empty,
+                        Ip = Ip
+                    });
                     if (senderPeer == null)
                         senderPeer = Core.GetService<DiscoveryService>().GetPeerInfoByIpAddress(Ip)!;
                     Core.SendEvent(new PeerControlMeEvent() { PeerInfo = senderPeer });

@@ -119,7 +119,7 @@ namespace BeghShare.Services
         {
             try
             {
-                var client = new TcpClient();
+                var client = new TcpClient(AddressFamily.InterNetwork);
                 await client.ConnectAsync(ipAddress, APPPORT_TCP);
 
                 var remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
@@ -164,7 +164,7 @@ namespace BeghShare.Services
 
             try
             {
-                var bytes = EncryptionService.Encode(e.Data);
+                var bytes = EncryptionService.Encode($"{e.Header}{e.Data}");
                 var lengthBytes = BitConverter.GetBytes(bytes.Length);
                 var stream = client.GetStream();
                 await stream.WriteAsync(lengthBytes);

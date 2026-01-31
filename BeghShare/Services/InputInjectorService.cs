@@ -39,7 +39,8 @@ namespace BeghShare.Services
                 return;
             Core.SendEvent(new UdpMsgSendEvent()
             {
-                Data = $"{MOUSEMOVE_MSG}{e.X}/{e.Y}",
+                Header = MOUSEMOVE_MSG,
+                Data = $"{e.X}/{e.Y}",
                 Ip = Controled.IP
             });
         }
@@ -50,7 +51,8 @@ namespace BeghShare.Services
             if (Controled == null) return;
             Core.SendEvent(new UdpMsgSendEvent()
             {
-                Data = $"{KEYDOWNEVENT_MSG}{e.keyCode}",
+                Header = KEYDOWNEVENT_MSG,
+                Data = $"{e.keyCode}",
                 Ip = Controled.IP
             });
         }

@@ -19,10 +19,10 @@ namespace BeghShare.Services
         public void OnBroadCastSentMsg(string Data, IPAddress Ip)
         {
             if (IsLocalAddress(Ip)) return;
-            string response = RESPONSE_MSG + Environment.MachineName;
             Core.SendEvent(new UdpMsgSendEvent
             {
-                Data = response,
+                Header = RESPONSE_MSG,
+                Data = Environment.MachineName,
                 Ip = Ip
             });
 
@@ -67,7 +67,8 @@ namespace BeghShare.Services
                         : unicast.Address;
                     Core.SendEvent(new UdpMsgSendEvent
                     {
-                        Data = BROADCAST_MSG,
+                        Header = BROADCAST_MSG,
+                        Data = string.Empty,
                         Ip = broadcast
                     });
                 }
@@ -85,7 +86,8 @@ namespace BeghShare.Services
         {
             Core.SendEvent(new UdpMsgSendEvent
             {
-                Data = BROADCAST_MSG,
+                Header = BROADCAST_MSG,
+                Data = string.Empty,
                 Ip = ip
             });
             return true;
