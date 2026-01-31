@@ -14,10 +14,8 @@ namespace BeghShare.UI.Pages
         public DiscoveryPage()
         {
             InitializeComponent();
-            foreach (var peer in Core.GetService<DiscoveryService>().Peers)
-            {
+            foreach (var peer in Core.GetService<DiscoveryService>().GetPeerInfos())
                 OnPeerFoundEvent(new PeerFoundEvent(peer));
-            }
         }
         [EventHandler]
         private void OnPeerFoundEvent(PeerFoundEvent e)

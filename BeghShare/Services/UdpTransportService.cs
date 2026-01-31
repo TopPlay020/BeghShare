@@ -1,6 +1,8 @@
 using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Events;
+using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Sockets;
 
 namespace BeghShare.Services
@@ -10,6 +12,7 @@ namespace BeghShare.Services
         public const int APPPORT_UDP = 51354;
 
         private readonly UdpClient _udpClient;
+        private readonly ConcurrentDictionary<IPAddress, IPEndPoint> _ipDict = new();
 
         public UdpTransportService()
         {
@@ -28,7 +31,7 @@ namespace BeghShare.Services
                     _ = Task.Run(() => Core.SendEvent(new UdpMsgReceivedEvent
                     {
                         Data = data,
-                        RemoteEndPoint = result.RemoteEndPoint
+                        Ip = result.RemoteEndPoint.Address
                     }));
                 }
             });
@@ -38,7 +41,7 @@ namespace BeghShare.Services
         public async void OnUdpMsgSend(UdpMsgSendEvent e)
         {
             var bytes = EncryptionService.Encode(e.Data);
-            await _udpClient.SendAsync(bytes, bytes.Length, e.RemoteEndPoint);
+            await _udpClient.SendAsync(bytes, bytes.Length, _ipDict.GetOrAdd(e.Ip, new IPEndPoint(e.Ip, APPPORT_UDP)));
         }
     }
 }

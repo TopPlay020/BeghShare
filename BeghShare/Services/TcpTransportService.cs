@@ -13,6 +13,7 @@ namespace BeghShare.Services
 
         private readonly TcpListener _listener;
         private readonly ConcurrentDictionary<IPEndPoint, TcpClient> _clients = new();
+        private readonly ConcurrentDictionary<IPAddress, IPEndPoint> _ipDict = new();
 
         public TcpTransportService()
         {
@@ -34,8 +35,18 @@ namespace BeghShare.Services
                 {
                     var client = await _listener.AcceptTcpClientAsync();
                     var remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
-                    _clients[remoteEndPoint] = client;
-                    _ = Task.Run(() => ReceiveLoop(client, remoteEndPoint));
+                    var peerInfo = Core.GetService<DiscoveryService>().GetPeerInfoByIpAddress(remoteEndPoint.Address);
+                    if (peerInfo != null)
+                    {
+                        _clients[remoteEndPoint] = client;
+                        _ipDict[remoteEndPoint.Address] = remoteEndPoint;
+                        _ = Task.Run(() => ReceiveLoop(client, remoteEndPoint));
+                    }
+                    else
+                    {
+                        Core.GetService<DiscoveryService>().Discover(((IPEndPoint)client.Client.RemoteEndPoint!).Address.ToString());
+                        client.Close();
+                    }
                 }
                 catch (ObjectDisposedException)
                 {
@@ -74,7 +85,7 @@ namespace BeghShare.Services
                         _ = Task.Run(() => Core.SendEvent(new TcpMsgReceivedEvent
                         {
                             Data = data,
-                            RemoteEndPoint = remoteEndPoint
+                            Ip = remoteEndPoint.Address
                         }));
                     }
                 }
@@ -86,6 +97,7 @@ namespace BeghShare.Services
             finally
             {
                 _clients.TryRemove(remoteEndPoint, out _);
+                _ipDict.TryRemove(remoteEndPoint.Address, out _);
                 client.Dispose();
             }
         }
@@ -103,17 +115,68 @@ namespace BeghShare.Services
             return total;
         }
 
+        private async Task<bool> ConnectToPeer(IPAddress ipAddress)
+        {
+            try
+            {
+                var client = new TcpClient();
+                await client.ConnectAsync(ipAddress, APPPORT_TCP);
+
+                var remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
+
+                // Check if already connected
+                if (_clients.ContainsKey(remoteEndPoint))
+                {
+                    client.Close();
+                    return true;
+                }
+
+                _clients[remoteEndPoint] = client;
+                _ipDict[remoteEndPoint.Address] = remoteEndPoint;
+
+                _ = Task.Run(() => ReceiveLoop(client, remoteEndPoint));
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         [EventHandler]
         public async void OnTcpMsgSend(TcpMsgSendEvent e)
         {
-            if (!_clients.TryGetValue(e.RemoteEndPoint, out var client) || !client.Connected)
-                return;
+            // Check if we have a connected client
+            if (!_ipDict.TryGetValue(e.Ip, out var remoteEndPoint) || !_clients.TryGetValue(remoteEndPoint, out var client) || !client.Connected)
+            {
+                // Try to connect first
+                var connected = await ConnectToPeer(e.Ip);
+                if (!connected)
+                    return; // Connection failed, cannot send
 
-            var bytes = EncryptionService.Encode(e.Data);
-            var lengthBytes = BitConverter.GetBytes(bytes.Length);
-            var stream = client.GetStream();
-            await stream.WriteAsync(lengthBytes);
-            await stream.WriteAsync(bytes);
+                remoteEndPoint = _ipDict[e.Ip];
+
+                // Get the newly connected client
+                if (!_clients.TryGetValue(remoteEndPoint, out client))
+                    return; // Still not available
+            }
+
+            try
+            {
+                var bytes = EncryptionService.Encode(e.Data);
+                var lengthBytes = BitConverter.GetBytes(bytes.Length);
+                var stream = client.GetStream();
+                await stream.WriteAsync(lengthBytes);
+                await stream.WriteAsync(bytes);
+            }
+            catch (Exception)
+            {
+                // Send failed - remove the client
+                _clients.TryRemove(remoteEndPoint, out _);
+                _ipDict.TryRemove(remoteEndPoint.Address, out _);
+                client?.Dispose();
+            }
         }
     }
 }

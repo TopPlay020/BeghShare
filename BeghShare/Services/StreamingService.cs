@@ -6,7 +6,6 @@ using System.Net;
 
 namespace BeghShare.Services
 {
-    //TODO: sending change to TCP / Make Sure the Msg Recived
     public class StreamingService : ISingleton, IAutoStart
     {
         private const string SendPeerControlRequestMsg = "BeghSendPeerControlRequestEvent:";
@@ -18,40 +17,40 @@ namespace BeghShare.Services
             Core.SendEvent(new UdpMsgSendEvent
             {
                 Data = SendPeerControlRequestMsg,
-                RemoteEndPoint = e.PeerInfo.IPEndPoint
+                Ip = e.PeerInfo.IP
             });
         }
 
         [MsgEventHandler(SendPeerControlRequestMsg)]
-        public async void OnSendPeerControlRequest(string data, IPEndPoint remoteEndPoint)
+        public async void OnSendPeerControlRequest(string data, IPAddress Ip)
         {
-            var senderPeer = Core.GetService<DiscoveryService>().Peers.FirstOrDefault(p => p.IP.ToString() == remoteEndPoint.Address.ToString());
+            var senderPeer = Core.GetService<DiscoveryService>().GetPeerInfoByIpAddress(Ip);
             var senderName = senderPeer != null ? senderPeer.Name : "Unknown";
             if (senderPeer == null)
-                Core.GetService<DiscoveryService>().Discover(remoteEndPoint.Address.ToString());
+                Core.GetService<DiscoveryService>().Discover(Ip);
             var mainWindow = Core.GetService<MainWindow>();
             mainWindow.Invoke((MethodInvoker)(() =>
             {
                 var result = MessageBox.Show(
                     mainWindow,
-                    $"{senderName}:{remoteEndPoint.Address} Want To Control You",
+                    $"{senderName}:{Ip} Want To Control You",
                     "Confirm",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
-                    Core.SendEvent(new UdpMsgSendEvent { Data = SendPeerControlAcceptMsg, RemoteEndPoint = remoteEndPoint });
+                    Core.SendEvent(new UdpMsgSendEvent { Data = SendPeerControlAcceptMsg, Ip = Ip });
                     if (senderPeer == null)
-                        senderPeer = Core.GetService<DiscoveryService>().Peers.First(p => p.IP.ToString() == remoteEndPoint.Address.ToString());
+                        senderPeer = Core.GetService<DiscoveryService>().GetPeerInfoByIpAddress(Ip)!;
                     Core.SendEvent(new PeerControlMeEvent() { PeerInfo = senderPeer });
                 }
             }));
         }
 
         [MsgEventHandler(SendPeerControlAcceptMsg)]
-        public async void OnSendPeerControlAcceptMsg(string data, IPEndPoint remoteEndPoint)
+        public async void OnSendPeerControlAcceptMsg(string data, IPAddress Ip)
         {
-            var receivedPeer = Core.GetService<DiscoveryService>().Peers.First(p => p.IP.ToString() == remoteEndPoint.Address.ToString());
+            var receivedPeer = Core.GetService<DiscoveryService>().GetPeerInfoByIpAddress(Ip)!;
             Core.SendEvent(new PeerStartControlingEvent() { PeerInfo = receivedPeer });
         }
     }

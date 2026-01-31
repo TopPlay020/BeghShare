@@ -11,14 +11,14 @@ public class MsgEventService : ISingleton, IAutoStart
     private class EventHandlerEntry
     {
         public required WeakReference Target { get; set; }
-        public required Action<string, IPEndPoint> Action { get; set; }
+        public required Action<string, IPAddress> Action { get; set; }
     }
 
     private readonly Dictionary<string, List<EventHandlerEntry>> _handlers = new();
     private List<string> _eventHeaders = new();
     private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
-    public void RegisterEventHandler(object instance, Action<string, IPEndPoint> action, string msgHeader)
+    public void RegisterEventHandler(object instance, Action<string, IPAddress> action, string msgHeader)
     {
         _lock.EnterWriteLock();
         try
@@ -39,7 +39,7 @@ public class MsgEventService : ISingleton, IAutoStart
         }
     }
 
-    public void RaiseEvent(string msgHeader, string data, IPEndPoint iep)
+    public void RaiseEvent(string msgHeader, string data, IPAddress ip)
     {
         List<EventHandlerEntry> handlers;
 
@@ -61,7 +61,7 @@ public class MsgEventService : ISingleton, IAutoStart
         {
             if (handler.Target.IsAlive)
             {
-                handler.Action(data, iep);
+                handler.Action(data, ip);
             }
         }
 
@@ -86,7 +86,20 @@ public class MsgEventService : ISingleton, IAutoStart
             if (e.Data.StartsWith(header))
             {
                 var data = e.Data.Substring(header.Length);
-                RaiseEvent(header, data, e.RemoteEndPoint);
+                RaiseEvent(header, data, e.Ip);
+            }
+        }
+    }
+
+    [EventHandler]
+    public async void OnTcpMsgReceived(TcpMsgReceivedEvent e)
+    {
+        foreach (var header in _eventHeaders)
+        {
+            if (e.Data.StartsWith(header))
+            {
+                var data = e.Data.Substring(header.Length);
+                RaiseEvent(header, data, e.Ip);
             }
         }
     }

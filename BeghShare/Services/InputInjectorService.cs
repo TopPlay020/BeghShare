@@ -40,7 +40,7 @@ namespace BeghShare.Services
             Core.SendEvent(new UdpMsgSendEvent()
             {
                 Data = $"{MOUSEMOVE_MSG}{e.X}/{e.Y}",
-                RemoteEndPoint = Controled.IPEndPoint
+                Ip = Controled.IP
             });
         }
 
@@ -51,14 +51,14 @@ namespace BeghShare.Services
             Core.SendEvent(new UdpMsgSendEvent()
             {
                 Data = $"{KEYDOWNEVENT_MSG}{e.keyCode}",
-                RemoteEndPoint = Controled.IPEndPoint
+                Ip = Controled.IP
             });
         }
 
         [MsgEventHandler(MOUSEMOVE_MSG)]
-        public async void OnMouseMoveFromController(string data, IPEndPoint remoteEndPoint)
+        public async void OnMouseMoveFromController(string data, IPAddress Ip)
         {
-            if (remoteEndPoint.Address.ToString() != ControledBy?.IP.ToString()) return;
+            if (!Ip.Equals(ControledBy?.IP)) return;
 
             string[] parts = data.Split('/');
             var x = short.Parse(parts[0]);
@@ -69,9 +69,9 @@ namespace BeghShare.Services
         }
 
         [MsgEventHandler(KEYDOWNEVENT_MSG)]
-        public async void OnKeyDownEventFromController(string data, IPEndPoint remoteEndPoint)
+        public async void OnKeyDownEventFromController(string data, IPAddress Ip)
         {
-            if (remoteEndPoint.Address.ToString() != ControledBy?.IP.ToString()) return;
+            if (!Ip.Equals(ControledBy?.IP)) return;
 
             KeyCode keyCode = (KeyCode)Enum.Parse(typeof(KeyCode), data);
             Core.SendEvent(new KeyDownEvent() { keyCode = keyCode });

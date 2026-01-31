@@ -13,28 +13,28 @@ namespace BeghShare.Services
         private const string BROADCAST_MSG = "BeghShareBroadcast:";
         private const string RESPONSE_MSG = "BeghShareResponse:";
 
-        public List<PeerInfo> Peers = new();
+        private List<PeerInfo> Peers = new();
 
         [MsgEventHandler(BROADCAST_MSG)]
-        public void OnBroadCastSentMsg(string Data, IPEndPoint e)
+        public void OnBroadCastSentMsg(string Data, IPAddress Ip)
         {
-            if (IsLocalAddress(e.Address)) return;
+            if (IsLocalAddress(Ip)) return;
             string response = RESPONSE_MSG + Environment.MachineName;
             Core.SendEvent(new UdpMsgSendEvent
             {
                 Data = response,
-                RemoteEndPoint = e
+                Ip = Ip
             });
 
-            if (!Peers.Any(p => p.IPEndPoint.Address.ToString() == e.Address.ToString()))
-                Discover(e.Address.ToString());
+            if (GetPeerInfoByIpAddress(Ip) == null)
+                Discover(Ip.ToString());
         }
 
         [MsgEventHandler(RESPONSE_MSG)]
-        public void OnBroadCastResponseMsg(string Data, IPEndPoint e)
+        public void OnBroadCastResponseMsg(string Data, IPAddress Ip)
         {
-            if (IsLocalAddress(e.Address)) return;
-            var peer = new PeerInfo { Name = Data, IP = e.Address, IsOnline = true, IPEndPoint = e };
+            if (IsLocalAddress(Ip)) return;
+            var peer = new PeerInfo { Name = Data, IP = Ip, IsOnline = true };
             if (!Peers.Exists(p => p.IP.Equals(peer.IP)))
             {
                 Peers.Add(peer);
@@ -43,36 +43,12 @@ namespace BeghShare.Services
             }
         }
 
-        //[EventHandler]
-        //public void OnUdpMsgReceived(UdpMsgReceivedEvent e)
-        //{
-        //    if (IsLocalAddress(e.RemoteEndPoint.Address))
-        //        return;
+        public PeerInfo? GetPeerInfoByIpAddress(IPAddress ipAddress)
+        {
+            return Peers.FirstOrDefault(p => p.IP.Equals(ipAddress));
+        }
 
-        //    if (e.Data.StartsWith(BROADCAST_MSG))
-        //    {
-        //        string response = RESPONSE_MSG + Environment.MachineName;
-        //        Core.SendEvent(new UdpMsgSendEvent
-        //        {
-        //            Data = response,
-        //            RemoteEndPoint = e.RemoteEndPoint
-        //        });
-
-        //        if (!Peers.Any(p => p.IPEndPoint.Address.ToString() == e.RemoteEndPoint.Address.ToString()))
-        //            Discover(e.RemoteEndPoint.Address.ToString());
-        //    }
-        //    else if (e.Data.StartsWith(RESPONSE_MSG))
-        //    {
-        //        string name = e.Data.Substring(RESPONSE_MSG.Length);
-        //        var peer = new PeerInfo { Name = name, IP = e.RemoteEndPoint.Address, IsOnline = true, IPEndPoint = e.RemoteEndPoint };
-        //        if (!Peers.Exists(p => p.IP.Equals(peer.IP)))
-        //        {
-        //            Peers.Add(peer);
-        //            Core.SendEvent(new PeerFoundEvent(peer));
-        //            Core.SendEvent(new OnlineComputerCountChangedEvent(Peers.Count()));
-        //        }
-        //    }
-        //}
+        public List<PeerInfo> GetPeerInfos() => Peers.ToList();
 
         public void Discover()
         {
@@ -92,7 +68,7 @@ namespace BeghShare.Services
                     Core.SendEvent(new UdpMsgSendEvent
                     {
                         Data = BROADCAST_MSG,
-                        RemoteEndPoint = new IPEndPoint(broadcast, UdpTransportService.APPPORT_UDP)
+                        Ip = broadcast
                     });
                 }
             }
@@ -102,10 +78,15 @@ namespace BeghShare.Services
         {
             if (!IPAddress.TryParse(ipString, out var ip))
                 return false;
+            return Discover(ip);
+        }
+
+        public bool Discover(IPAddress ip)
+        {
             Core.SendEvent(new UdpMsgSendEvent
             {
                 Data = BROADCAST_MSG,
-                RemoteEndPoint = new IPEndPoint(ip, UdpTransportService.APPPORT_UDP)
+                Ip = ip
             });
             return true;
         }
