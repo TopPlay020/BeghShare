@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 namespace BeghShare.Services
 {
-    public class UdpTransportService : ISingleton, IGUIAutoStart
+    public class UdpTransportService : ISingleton, IAutoStart
     {
         public const int APPPORT_UDP = 51354;
 

@@ -1,44 +1,58 @@
 ﻿using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Events;
-using Gma.System.MouseKeyHook;
+using SharpHook;
 
 namespace BeghShare.Services
 {
-    public class InputCaptureService : ISingleton, IGUIAutoStart
+    public class InputCaptureService : ISingleton, IAutoStart
     {
-        private static IKeyboardMouseEvents? _globalHook;
+        private SimpleGlobalHook? _hook;
 
-        public InputCaptureService()
+        [EventHandler]
+        public void OnStartControling(PeerStartControlingEvent e)
         {
-            //StartTracking();
+            var _ = Task.Run(StartTracking);
         }
+
         public void StartTracking()
         {
-            _globalHook = Hook.GlobalEvents();
-            _globalHook.MouseMove += MouseMove;
-            _globalHook.KeyDown += KeyDown;
+            if (_hook != null)
+                return;
+
+            _hook = new SimpleGlobalHook();
+            _hook.MouseMoved += OnMouseMove;
+            _hook.KeyPressed += OnKeyDown;
+            _hook.Run();
         }
+
         public void StopTracking()
         {
-            _globalHook?.MouseMove -= MouseMove;
-            _globalHook?.KeyDown -= KeyDown;
-            _globalHook?.Dispose();
+            if (_hook != null)
+            {
+                _hook.Dispose();
+                _hook = null;
+            }
         }
+
         [EventHandler]
         public void OnApplicationExit(MainWindowCloseEvent e)
         {
             StopTracking();
         }
 
-        public void MouseMove(object? sender, MouseEventArgs e)
+        private void OnMouseMove(object? sender, MouseHookEventArgs e)
         {
-            Core.SendEvent(new MouseMoveEvent(e));
+            Core.SendEvent(new MouseMoveEvent()
+            {
+                X = e.Data.X,
+                Y = e.Data.Y
+            });
         }
 
-        public void KeyDown(object? sender, KeyEventArgs e)
+        private void OnKeyDown(object? sender, KeyboardHookEventArgs e)
         {
-            Core.SendEvent(new KeyDownEvent(e));
+            Core.SendEvent(new KeyDownEvent() { keyCode = e.Data.KeyCode });
         }
     }
 }

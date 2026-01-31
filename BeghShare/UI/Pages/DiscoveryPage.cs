@@ -1,4 +1,4 @@
-﻿using BeghCore;
+using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Attributes;
 using BeghShare.Events;
@@ -54,6 +54,13 @@ namespace BeghShare.UI.Pages
             {
                 Core.SendEvent(new SendPeerControlRequestEvent(targetPeer));
             }
+        }
+
+        private void SearchClick(object sender, EventArgs e)
+        {
+            var ipAddressToSearch = SearchText.Text.Trim();
+            if (!Core.GetService<DiscoveryService>().Discover(ipAddressToSearch))
+                MessageBox.Show("Invalid IP address.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 }

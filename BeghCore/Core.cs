@@ -17,6 +17,8 @@ namespace BeghCore
 
     //GUI Auto Start Interface
     public interface IGUIAutoStart;
+    public interface ICommandLineAutoStart;
+    public interface IAutoStart;
 
     public enum ApplicationStartMode
     {
@@ -66,11 +68,15 @@ namespace BeghCore
 
             serviceProvider = services.BuildServiceProvider();
 
-            //Start Gui
             if (applicationStartMode == ApplicationStartMode.GUIApplicationStartMode)
                 foreach (var type in types.Where(t => typeof(IGUIAutoStart).IsAssignableFrom(t)))
                     GetService(type);
+            else
+                foreach (var type in types.Where(t => typeof(ICommandLineAutoStart).IsAssignableFrom(t)))
+                    GetService(type);
 
+            foreach (var type in types.Where(t => typeof(IAutoStart).IsAssignableFrom(t)))
+                GetService(type);
         }
     }
 }

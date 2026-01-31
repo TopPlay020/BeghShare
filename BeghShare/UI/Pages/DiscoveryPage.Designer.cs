@@ -30,7 +30,7 @@
         {
             tableLayoutPanel1 = new TableLayoutPanel();
             label1 = new Label();
-            textBox1 = new TextBox();
+            SearchText = new TextBox();
             button1 = new Button();
             DiscoveryButton = new Button();
             PeersList = new ListView();
@@ -48,7 +48,7 @@
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
             tableLayoutPanel1.Controls.Add(label1, 0, 0);
-            tableLayoutPanel1.Controls.Add(textBox1, 1, 0);
+            tableLayoutPanel1.Controls.Add(SearchText, 1, 0);
             tableLayoutPanel1.Controls.Add(button1, 2, 0);
             tableLayoutPanel1.Controls.Add(DiscoveryButton, 0, 1);
             tableLayoutPanel1.Dock = DockStyle.Top;
@@ -71,13 +71,13 @@
             label1.Text = "IP Adress:";
             label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // textBox1
+            // SearchText
             // 
-            textBox1.Dock = DockStyle.Fill;
-            textBox1.Location = new Point(81, 3);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(181, 27);
-            textBox1.TabIndex = 1;
+            SearchText.Dock = DockStyle.Fill;
+            SearchText.Location = new Point(81, 3);
+            SearchText.Name = "SearchText";
+            SearchText.Size = new Size(181, 27);
+            SearchText.TabIndex = 1;
             // 
             // button1
             // 
@@ -87,6 +87,7 @@
             button1.TabIndex = 2;
             button1.Text = "Search";
             button1.UseVisualStyleBackColor = true;
+            button1.Click += SearchClick;
             // 
             // DiscoveryButton
             // 
@@ -145,7 +146,7 @@
         #endregion
         private TableLayoutPanel tableLayoutPanel1;
         private Label label1;
-        private TextBox textBox1;
+        private TextBox SearchText;
         private Button button1;
         private Button DiscoveryButton;
         private ListView PeersList;

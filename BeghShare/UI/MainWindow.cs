@@ -2,7 +2,6 @@
 using BeghCore.Attributes;
 using BeghShare.Attributes;
 using BeghShare.Events;
-using BeghShare.Services;
 using System.Reflection;
 namespace BeghShare
 {
@@ -38,24 +37,30 @@ namespace BeghShare
         [EventHandler]
         private void OnMouseMove(MouseMoveEvent e)
         {
-            MouseX.Text = e.e.X.ToString();
-            MouseY.Text = e.e.Y.ToString();
+            if (MouseX.InvokeRequired)
+                MouseX.Invoke(() => MouseX.Text = e.X.ToString());
+            else
+                MouseX.Text = e.X.ToString();
+            if (MouseY.InvokeRequired)
+                MouseY.Invoke(() => MouseY.Text = e.Y.ToString());
+            else
+                MouseY.Text = e.Y.ToString();
         }
         [EventHandler]
         private void OnKeyDownEvent(KeyDownEvent e)
         {
-            KeyDownText.Text = e.e.KeyCode.ToString();
+            if (KeyDownText.InvokeRequired)
+                KeyDownText.Invoke(() => KeyDownText.Text = e.keyCode.ToString());
+            else
+                KeyDownText.Text = e.keyCode.ToString();
         }
         [EventHandler]
         private void OnOnlineComputerCountChangedEvent(OnlineComputerCountChangedEvent e)
         {
-            //Ui Change
             if (OnlineText.InvokeRequired)
-            {
-                OnlineText.Invoke(new Action(() => OnOnlineComputerCountChangedEvent(e)));
-                return;
-            }
-            OnlineText.Text = e.Count.ToString();
+                OnlineText.Invoke(() => OnlineText.Text = e.Count.ToString());
+            else
+                OnlineText.Text = e.Count.ToString();
         }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
