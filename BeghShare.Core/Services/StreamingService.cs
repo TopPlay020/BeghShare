@@ -1,6 +1,7 @@
 using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Core.Attributes;
+using BeghShare.Core.Events;
 using BeghShare.Core.Events.MessageEvents;
 using BeghShare.Core.Events.NetworkEvents;
 using System.Net;
@@ -11,6 +12,10 @@ namespace BeghShare.Core.Services
     {
         private const string SendPeerControlRequestMsg = "BeghSendPeerControlRequestEvent:";
         private const string SendPeerControlAcceptMsg = "BeghSendPeerControlAcceptEvent:";
+
+        private ManualResetEvent WaitForUserResponse = new(false);
+        private string RequestId;
+        private bool ResponseReceived;
 
         [EventHandler]
         public async void OnSendPeerControlRequestEvent(SendPeerControlRequestEvent e)
@@ -30,15 +35,36 @@ namespace BeghShare.Core.Services
             var senderName = senderPeer != null ? senderPeer.Name : "Unknown";
             if (senderPeer == null)
                 GetService<DiscoveryService>().Discover(Ip);
-            SendEvent(new TcpMsgSendEvent
+            RequestId = $"Can{senderName}{Ip} Control Me ?";
+            SendEvent(new YesNoQustionRequestEvent()
             {
-                Header = SendPeerControlAcceptMsg,
-                Data = string.Empty,
-                Ip = Ip
+                RequestId = RequestId,
+                RequestTitle = "Control Confirmation",
+                RequestBody = $"Can The Peer {senderName}:{Ip} Controle You ?"
             });
-            if (senderPeer == null)
-                senderPeer = GetService<DiscoveryService>().GetPeerInfoByIpAddress(Ip)!;
-            SendEvent(new PeerControlMeEvent() { PeerInfo = senderPeer });
+
+            WaitForUserResponse.WaitOne();
+            if (ResponseReceived)
+            {
+                SendEvent(new TcpMsgSendEvent
+                {
+                    Header = SendPeerControlAcceptMsg,
+                    Data = string.Empty,
+                    Ip = Ip
+                });
+                if (senderPeer == null)
+                    senderPeer = GetService<DiscoveryService>().GetPeerInfoByIpAddress(Ip)!;
+                SendEvent(new PeerControlMeEvent() { PeerInfo = senderPeer });
+            }
+        }
+        [EventHandler]
+        public async void OnYesNoQustionResponseEvent(YesNoQustionResponseEvent e)
+        {
+            if (e.RequestId == RequestId)
+            {
+                ResponseReceived = e.Response;
+                WaitForUserResponse.Set();
+            }
         }
 
         [MsgEventHandler(SendPeerControlAcceptMsg)]

@@ -112,7 +112,7 @@
             PeersList.Size = new Size(365, 330);
             PeersList.TabIndex = 2;
             PeersList.UseCompatibleStateImageBehavior = false;
-            PeersList.View = View.Details;
+            PeersList.View = System.Windows.Forms.View.Details;
             PeersList.MouseDoubleClick += PeerItemDoubleClick;
             // 
             // ComputerName

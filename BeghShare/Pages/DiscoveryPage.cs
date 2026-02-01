@@ -10,7 +10,7 @@ namespace BeghShare.UI.Pages
     [SideMenuItem(Title = "Peers Discovery")]
     public partial class DiscoveryPage : UserControl, ITransient
     {
-        private Dictionary<ListViewItem, PeerInfo> _peers = new();
+        private readonly Dictionary<ListViewItem, PeerInfo> _peers = [];
         public DiscoveryPage()
         {
             InitializeComponent();
