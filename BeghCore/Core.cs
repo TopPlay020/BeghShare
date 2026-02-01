@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -40,8 +41,40 @@ namespace BeghCore
         {
             WeakReferenceMessenger.Default.Send(message);
         }
-        public static IEnumerable<Type> GetAssemblyTypes() => AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(t => t.IsClass && !t.IsAbstract);
+        private static List<Type> _cachedAssemblyTypes;
+        public static IEnumerable<Type> GetAssemblyTypes()
+        {
+            if (_cachedAssemblyTypes != null) return _cachedAssemblyTypes;
 
+            var rootNamespace = Assembly.GetEntryAssembly()?.GetName().Name?.Split('.')[0];
+            if (rootNamespace == null) return Enumerable.Empty<Type>();
+
+            var loaded = new HashSet<string>();
+            var toLoad = new Queue<Assembly>();
+
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var name = asm.GetName().Name;
+                if (name?.StartsWith(rootNamespace) == true && loaded.Add(asm.FullName))
+                    toLoad.Enqueue(asm);
+            }
+
+            while (toLoad.Count > 0)
+            {
+                var asm = toLoad.Dequeue();
+                foreach (var refName in asm.GetReferencedAssemblies())
+                    if (refName.Name?.StartsWith(rootNamespace) == true && loaded.Add(refName.FullName))
+                        toLoad.Enqueue(Assembly.Load(refName));
+            }
+
+            var types = new List<Type>();
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                if (!asm.IsDynamic && asm.GetName().Name?.StartsWith(rootNamespace) == true)
+                    types.AddRange(asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract));
+
+            _cachedAssemblyTypes = types;
+            return _cachedAssemblyTypes;
+        }
         public static void CoreInit(ApplicationStartMode applicationStartMode = ApplicationStartMode.GUIApplicationStartMode)
         {
             var services = new ServiceCollection();

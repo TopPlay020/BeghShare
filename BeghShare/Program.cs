@@ -1,6 +1,4 @@
-﻿using BeghCore;
-
-namespace BeghShare
+﻿namespace BeghShare
 {
     internal static class Program
     {
@@ -9,8 +7,8 @@ namespace BeghShare
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Core.CoreInit();
-            Application.Run(Core.GetService<MainWindow>());
+            CoreInit();
+            Application.Run(GetService<MainWindow>());
         }
     }
 }

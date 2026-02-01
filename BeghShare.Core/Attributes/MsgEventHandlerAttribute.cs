@@ -3,29 +3,33 @@ using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.SyntaxBuilders;
 using Metalama.Framework.Fabrics;
-using System;
-using System.Linq;
 
-namespace BeghCore.Attributes
+namespace BeghShare.Core.Attributes
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class EventHandlerAttribute : Attribute { }
-
-    public class EventHandlerAspect : TypeAspect
+    public class MsgEventHandlerAttribute : Attribute
+    {
+        public string Header { get; set; }
+        public MsgEventHandlerAttribute(string Header)
+        {
+            this.Header = Header;
+        }
+    }
+    public class MsgEventHandlerAspect : TypeAspect
     {
         public override void BuildAspect(IAspectBuilder<INamedType> builder)
         {
             var eventHandlerMethods = builder.Target.Methods
-                .Where(m => m.Attributes.Any(a => a.Type.Name == typeof(EventHandlerAttribute).Name))
+                .Where(m => m.Attributes.Any(a => a.Type.Name == typeof(MsgEventHandlerAttribute).Name))
                 .ToList();
 
             foreach (var method in eventHandlerMethods)
             {
-                var eventTypeDisplay = method.Parameters.First().Type.ToDisplayString();
+                var header = method.Attributes.First(a => a.Type.Name == nameof(MsgEventHandlerAttribute)).ConstructorArguments[0].Value as string;
                 var methodName = method.Name;
 
                 builder.AddInitializer(
-                    StatementFactory.Parse($"BeghCore.Core.RegisterEventHandler<{eventTypeDisplay}>(this, {methodName});"),
+                    StatementFactory.Parse($"BeghCore.Core.GetService<MsgEventService>().RegisterEventHandler(this,{methodName},\"{header}\");"),
                     InitializerKind.BeforeInstanceConstructor
                 );
 
@@ -33,15 +37,15 @@ namespace BeghCore.Attributes
         }
     }
 
-    public class EventHandlerFabric : TransitiveProjectFabric
+    public class MsgEventHandlerFabric : ProjectFabric
     {
         public override void AmendProject(IProjectAmender amender)
         {
             amender
                 .SelectMany(compilation => compilation.AllTypes)
                 .Where(type => type.Methods.Any(m =>
-                    m.Attributes.Any(a => a.Type.Name == nameof(EventHandlerAttribute))))
-                .AddAspectIfEligible<EventHandlerAspect>();
+                    m.Attributes.Any(a => a.Type.Name == nameof(MsgEventHandlerAttribute))))
+                .AddAspectIfEligible<MsgEventHandlerAspect>();
         }
     }
 }

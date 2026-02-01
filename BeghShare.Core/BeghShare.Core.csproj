@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeghCore\BeghCore.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="H.InputSimulator" Version="1.5.0" />
+		<PackageReference Include="SharpHook" Version="7.1.1" />
+	</ItemGroup>
+</Project>
