@@ -1,6 +1,8 @@
 ﻿using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Events;
+using BeghShare.Events.MessageEvents;
+using BeghShare.Events.UserInputEvents;
 using SharpHook;
 
 namespace BeghShare.Services
@@ -22,7 +24,10 @@ namespace BeghShare.Services
 
             _hook = new SimpleGlobalHook();
             _hook.MouseMoved += OnMouseMove;
-            _hook.KeyPressed += OnKeyDown;
+            _hook.MousePressed += OnMousePressed;
+            _hook.MouseReleased += OnMouseReleased;
+            _hook.KeyPressed += OnKeyPressed;
+            _hook.KeyReleased += OnKeyReleased;
             _hook.Run();
         }
 
@@ -49,10 +54,21 @@ namespace BeghShare.Services
                 Y = e.Data.Y
             });
         }
-
-        private void OnKeyDown(object? sender, KeyboardHookEventArgs e)
+        private void OnMousePressed(object? sender, MouseHookEventArgs e)
         {
-            Core.SendEvent(new KeyDownEvent() { keyCode = e.Data.KeyCode });
+            Core.SendEvent(new MousePressedEvent() { Button = e.Data.Button });
+        }
+        private void OnMouseReleased(object? sender, MouseHookEventArgs e)
+        {
+            Core.SendEvent(new MouseReleasedEvent() { Button = e.Data.Button });
+        }
+        private void OnKeyPressed(object? sender, KeyboardHookEventArgs e)
+        {
+            Core.SendEvent(new KeyPressedEvent() { keyCode = e.Data.KeyCode });
+        }
+        private void OnKeyReleased(object? sender, KeyboardHookEventArgs e)
+        {
+            Core.SendEvent(new KeyReleasedEvent() { keyCode = e.Data.KeyCode });
         }
     }
 }

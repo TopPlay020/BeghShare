@@ -1,7 +1,8 @@
 using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Attributes;
-using BeghShare.Events;
+using BeghShare.Events.MessageEvents;
+using BeghShare.Events.NetworkEvents;
 using System.Net;
 
 namespace BeghShare.Services

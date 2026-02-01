@@ -1,6 +1,8 @@
 using BeghCore;
 using BeghShare.Attributes;
 using BeghShare.Events;
+using BeghShare.Events.MessageEvents;
+using BeghShare.Events.NetworkEvents;
 using BeghShare.Models;
 using System.Net;
 using System.Net.NetworkInformation;

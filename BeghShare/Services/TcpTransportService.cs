@@ -1,6 +1,6 @@
 using BeghCore;
 using BeghCore.Attributes;
-using BeghShare.Events;
+using BeghShare.Events.NetworkEvents;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;

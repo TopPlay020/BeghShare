@@ -1,6 +1,6 @@
 ﻿using BeghShare.Models;
 
-namespace BeghShare.Events
+namespace BeghShare.Events.MessageEvents
 {
     public record SendPeerControlRequestEvent
     {

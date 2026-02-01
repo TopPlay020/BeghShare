@@ -1,8 +1,8 @@
 using System.Net;
 
-namespace BeghShare.Events
+namespace BeghShare.Events.NetworkEvents
 {
-    public record UdpMsgSendEvent
+    public record TcpMsgSendEvent
     {
         public required string Header { get; init; }
         public required string Data { get; init; }

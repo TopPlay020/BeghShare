@@ -2,6 +2,7 @@
 using BeghCore.Attributes;
 using BeghShare.Attributes;
 using BeghShare.Events;
+using BeghShare.Events.UserInputEvents;
 using System.Reflection;
 namespace BeghShare
 {
@@ -47,7 +48,7 @@ namespace BeghShare
                 MouseY.Text = e.Y.ToString();
         }
         [EventHandler]
-        private void OnKeyDownEvent(KeyDownEvent e)
+        private void OnKeyDownEvent(KeyPressedEvent e)
         {
             if (KeyDownText.InvokeRequired)
                 KeyDownText.Invoke(() => KeyDownText.Text = e.keyCode.ToString());

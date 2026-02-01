@@ -1,6 +1,6 @@
 ﻿using SharpHook;
 
-namespace BeghShare.Events
+namespace BeghShare.Events.UserInputEvents
 {
     public record MouseMoveEvent
     {

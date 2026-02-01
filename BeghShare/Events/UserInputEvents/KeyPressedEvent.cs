@@ -1,11 +1,10 @@
-﻿
-using SharpHook;
+﻿using SharpHook;
 using SharpHook.Data;
 using System.Windows.Forms;
 
-namespace BeghShare.Events
+namespace BeghShare.Events.UserInputEvents
 {
-    public class KeyDownEvent
+    public class KeyPressedEvent
     {
         public required KeyCode keyCode { get; init; }
     }
