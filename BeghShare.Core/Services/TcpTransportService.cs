@@ -1,5 +1,6 @@
 using BeghCore;
 using BeghCore.Attributes;
+using BeghShare.Core.Attributes;
 using BeghShare.Core.Events.NetworkEvents;
 using System.Collections.Concurrent;
 using System.Net;
@@ -9,7 +10,8 @@ namespace BeghShare.Core.Services
 {
     public class TcpTransportService : ISingleton, IAutoStart
     {
-        public const int APPPORT_TCP = 51355;
+        [DatabaseBacked]
+        public int APPPORT_TCP;
 
         private readonly TcpListener _listener;
         private readonly ConcurrentDictionary<IPEndPoint, TcpClient> _clients = new();

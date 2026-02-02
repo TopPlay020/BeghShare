@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BeghShare.Core.Events
+﻿namespace BeghShare.Core.Events
 {
     public record YesNoQustionRequestEvent
     {

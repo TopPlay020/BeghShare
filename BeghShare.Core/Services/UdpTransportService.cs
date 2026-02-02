@@ -1,5 +1,6 @@
 using BeghCore;
 using BeghCore.Attributes;
+using BeghShare.Core.Attributes;
 using BeghShare.Core.Events.NetworkEvents;
 using System.Collections.Concurrent;
 using System.Net;
@@ -9,7 +10,8 @@ namespace BeghShare.Core.Services
 {
     public class UdpTransportService : ISingleton, IAutoStart
     {
-        public const int APPPORT_UDP = 51354;
+        [DatabaseBacked]
+        public int APPPORT_UDP;
 
         private readonly UdpClient _udpClient;
         private readonly ConcurrentDictionary<IPAddress, IPEndPoint> _ipDict = new();
