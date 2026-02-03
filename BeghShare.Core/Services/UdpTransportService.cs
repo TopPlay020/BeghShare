@@ -11,7 +11,7 @@ namespace BeghShare.Core.Services
     public class UdpTransportService : ISingleton, IAutoStart
     {
         [DatabaseBacked]
-        public int APPPORT_UDP;
+        public readonly int APPPORT_UDP;
 
         private readonly UdpClient _udpClient;
         private readonly ConcurrentDictionary<IPAddress, IPEndPoint> _ipDict = new();

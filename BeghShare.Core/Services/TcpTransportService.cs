@@ -11,7 +11,7 @@ namespace BeghShare.Core.Services
     public class TcpTransportService : ISingleton, IAutoStart
     {
         [DatabaseBacked]
-        public int APPPORT_TCP;
+        public readonly int APPPORT_TCP;
 
         private readonly TcpListener _listener;
         private readonly ConcurrentDictionary<IPEndPoint, TcpClient> _clients = new();

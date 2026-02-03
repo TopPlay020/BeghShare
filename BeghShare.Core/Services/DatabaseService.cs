@@ -27,6 +27,15 @@ namespace BeghShare.Core.Services
             }
             return default;
         }
+        public dynamic Get(Type type, string key)
+        {
+            var data = LoadData();
+            if (data.TryGetValue(key, out var element))
+            {
+                return element.Deserialize(type, _jsonOptions);
+            }
+            return default;
+        }
 
         public bool Exists(string key)
         {
