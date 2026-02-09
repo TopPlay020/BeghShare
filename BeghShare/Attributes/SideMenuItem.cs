@@ -4,5 +4,6 @@
     public class SideMenuItemAttribute : Attribute
     {
         public required string Title { get; set; }
+        public int Order { get; set; } = 0;
     }
 }

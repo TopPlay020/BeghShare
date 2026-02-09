@@ -14,6 +14,7 @@ namespace BeghShare.Core.Services
     public class InputInjectorService : ISingleton, IAutoStart
     {
         private const string MOUSE_MOVE_MSG = "MouseMoveEvent:";
+        private const string MOUSE_WHEEL_MSG = "MouseWheelEvent:";
         private const string MOUSE_PRESSED_EVENT_MSG = "MousePressedEvent:";
         private const string MOUSE_RELEASED_EVENT_MSG = "MouseReleasedEvent:";
         private const string KEY_PRESSED_EVENT_MSG = "KeyPressedEvent:";
@@ -46,6 +47,17 @@ namespace BeghShare.Core.Services
             {
                 Header = MOUSE_MOVE_MSG,
                 Data = $"{e.X}/{e.Y}",
+                Ip = Controled.IP
+            });
+        }
+        [EventHandler]
+        public async void OnMouseWheelEvent(MouseWheelEvent e)
+        {
+            if (Controled == null) return;
+            SendEvent(new UdpMsgSendEvent()
+            {
+                Header = MOUSE_WHEEL_MSG,
+                Data = $"{e.Rotation}/{e.Direction}/{e.ScrollType}",
                 Ip = Controled.IP
             });
         }
@@ -108,6 +120,18 @@ namespace BeghShare.Core.Services
             _simulator?.SimulateMouseMovement(x, y);
         }
 
+        [MsgEventHandler(MOUSE_WHEEL_MSG)]
+        public async void OnMouseWheelFromController(string data, IPAddress Ip)
+        {
+            if (!Ip.Equals(ControledBy?.IP)) return;
+
+            string[] parts = data.Split('/');
+            var rotation = short.Parse(parts[0]);
+            var direction = (MouseWheelScrollDirection)Enum.Parse(typeof(MouseWheelScrollDirection), parts[1]);
+            var scrollType = (MouseWheelScrollType)Enum.Parse(typeof(MouseWheelScrollType), parts[2]);
+            SendEvent(new MouseWheelEvent() { Rotation = rotation, Direction = direction, ScrollType = scrollType });
+            _simulator?.SimulateMouseWheel(rotation, direction, scrollType);
+        }
         [MsgEventHandler(MOUSE_PRESSED_EVENT_MSG)]
         public async void OnMousePressedFromController(string data, IPAddress Ip)
         {

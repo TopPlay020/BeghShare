@@ -20,11 +20,16 @@ namespace BeghShare
         {
             var nodes = SideMenu.Nodes;
             SideMenuClickMap = new Dictionary<TreeNode, Type>();
-            foreach (var page in GetAssemblyTypes().Where(t => t.GetCustomAttributes(typeof(SideMenuItemAttribute), false).Any()))
+
+            var pages = GetAssemblyTypes()
+                .Where(t => t.GetCustomAttributes(typeof(SideMenuItemAttribute), false).Any())
+                .Select(t => new { Type = t, Attr = t.GetCustomAttribute<SideMenuItemAttribute>()! })
+                .OrderBy(x => x.Attr.Order);
+
+            foreach (var page in pages)
             {
-                var attr = page.GetCustomAttribute<SideMenuItemAttribute>()!;
-                var node = nodes.Add(attr.Title);
-                SideMenuClickMap[node] = page;
+                var node = nodes.Add(page.Attr.Title);
+                SideMenuClickMap[node] = page.Type;
             }
         }
         private void SideMenu_AfterSelect(object sender, TreeViewEventArgs e)

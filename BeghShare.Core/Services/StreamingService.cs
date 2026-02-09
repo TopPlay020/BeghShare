@@ -1,7 +1,6 @@
 using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Core.Attributes;
-using BeghShare.Core.Events;
 using BeghShare.Core.Events.MessageEvents;
 using BeghShare.Core.Events.NetworkEvents;
 using System.Net;
@@ -12,10 +11,6 @@ namespace BeghShare.Core.Services
     {
         private const string SendPeerControlRequestMsg = "BeghSendPeerControlRequestEvent:";
         private const string SendPeerControlAcceptMsg = "BeghSendPeerControlAcceptEvent:";
-
-        private ManualResetEvent WaitForUserResponse = new(false);
-        private string RequestId;
-        private bool ResponseReceived;
 
         [EventHandler]
         public async void OnSendPeerControlRequestEvent(SendPeerControlRequestEvent e)
@@ -29,21 +24,17 @@ namespace BeghShare.Core.Services
         }
 
         [MsgEventHandler(SendPeerControlRequestMsg)]
-        public async void OnSendPeerControlRequest(string data, IPAddress Ip)
+        public async void OnSendPeerControlRequest(string _, IPAddress Ip)
         {
             var senderPeer = GetService<DiscoveryService>().GetPeerInfoByIpAddress(Ip);
             var senderName = senderPeer != null ? senderPeer.Name : "Unknown";
             if (senderPeer == null)
                 GetService<DiscoveryService>().Discover(Ip);
-            RequestId = $"Can{senderName}{Ip} Control Me ?";
-            SendEvent(new YesNoQustionRequestEvent()
-            {
-                RequestId = RequestId,
-                RequestTitle = "Control Confirmation",
-                RequestBody = $"Can The Peer {senderName}:{Ip} Controle You ?"
-            });
 
-            WaitForUserResponse.WaitOne();
+            var ResponseReceived = GetService<IYesNoQustionService>().Handle(
+                "Control Confirmation",
+                $"Can The Peer {senderName}:{Ip} Controle You ?");
+
             //TODO: here i need to get more information about the target !! for exemple his screen resolution and fps !!
             if (ResponseReceived)
             {
@@ -58,18 +49,9 @@ namespace BeghShare.Core.Services
                 SendEvent(new PeerControlMeEvent() { PeerInfo = senderPeer });
             }
         }
-        [EventHandler]
-        public async void OnYesNoQustionResponseEvent(YesNoQustionResponseEvent e)
-        {
-            if (e.RequestId == RequestId)
-            {
-                ResponseReceived = e.Response;
-                WaitForUserResponse.Set();
-            }
-        }
 
         [MsgEventHandler(SendPeerControlAcceptMsg)]
-        public async void OnSendPeerControlAcceptMsg(string data, IPAddress Ip)
+        public async void OnSendPeerControlAcceptMsg(string _, IPAddress Ip)
         {
             var receivedPeer = GetService<DiscoveryService>().GetPeerInfoByIpAddress(Ip)!;
             SendEvent(new PeerStartControlingEvent() { PeerInfo = receivedPeer });

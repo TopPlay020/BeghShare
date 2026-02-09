@@ -11,6 +11,10 @@ namespace BeghShare.Core.Services
     public class InputCaptureService : ISingleton, IAutoStart
     {
         private SimpleGlobalHook _hook;
+        //public InputCaptureService()
+        //{
+        //    Task.Run(StartTracking);
+        //}
 
         [EventHandler]
         public void OnStartControling(PeerStartControlingEvent _)
@@ -25,7 +29,7 @@ namespace BeghShare.Core.Services
 
             _hook = new SimpleGlobalHook(GlobalHookType.Keyboard | GlobalHookType.Mouse, runAsyncOnBackgroundThread: true);
             _hook.MouseMoved += OnMouseMove;
-            _hook.MouseDragged += OnMouseDragged;
+            _hook.MouseDragged += OnMouseMove;
             _hook.MouseWheel += OnMouseWheel;
             _hook.MousePressed += OnMousePressed;
             _hook.MouseReleased += OnMouseReleased;
@@ -56,14 +60,12 @@ namespace BeghShare.Core.Services
         }
         private void OnMouseWheel(object sender, MouseWheelHookEventArgs e)
         {
-            //TODO:
-            throw new NotImplementedException();
-        }
-
-        private void OnMouseDragged(object sender, MouseHookEventArgs e)
-        {
-            //TODO:
-            throw new NotImplementedException();
+            SendEvent(new MouseWheelEvent()
+            {
+                Rotation = e.Data.Rotation,
+                Direction = e.Data.Direction,
+                ScrollType = e.Data.Type
+            });
         }
         private void OnMousePressed(object sender, MouseHookEventArgs e)
         {
