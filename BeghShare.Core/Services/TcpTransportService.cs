@@ -11,7 +11,7 @@ namespace BeghShare.Core.Services
     public class TcpTransportService : ISingleton, IAutoStart
     {
         [DatabaseBacked]
-        public readonly int APPPORT_TCP;
+        public int APPPORT_TCP;
 
         private readonly TcpListener _listener;
         private readonly ConcurrentDictionary<IPEndPoint, TcpClient> _clients = new();
@@ -167,7 +167,7 @@ namespace BeghShare.Core.Services
 
             try
             {
-                var bytes = EncryptionService.Encode($"{e.Header}{e.Data}");
+                var bytes = EncryptionService.Encode($"{e.Header}{e.Data}",e.IsEncrypted);
                 var lengthBytes = BitConverter.GetBytes(bytes.Length);
                 var stream = client.GetStream();
                 await stream.WriteAsync(lengthBytes, 0, lengthBytes.Length);

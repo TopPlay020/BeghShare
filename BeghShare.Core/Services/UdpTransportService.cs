@@ -11,14 +11,15 @@ namespace BeghShare.Core.Services
     public class UdpTransportService : ISingleton, IAutoStart
     {
         [DatabaseBacked]
-        public readonly int APPPORT_UDP;
+        public int APPPORT_UDP;
 
         private readonly UdpClient _udpClient;
         private readonly ConcurrentDictionary<IPAddress, IPEndPoint> _ipDict = new();
 
         public UdpTransportService()
         {
-            _udpClient = new UdpClient(APPPORT_UDP, AddressFamily.InterNetwork) { EnableBroadcast = true, };
+            _udpClient = new UdpClient(APPPORT_UDP, AddressFamily.InterNetwork) { EnableBroadcast = true, DontFragment = true };
+
             StartListening();
         }
 
@@ -28,7 +29,7 @@ namespace BeghShare.Core.Services
             {
                 while (true)
                 {
-                    var result = await _udpClient.ReceiveAsync();
+                    var result = await _udpClient.ReceiveAsync().ConfigureAwait(false); ;
                     var data = EncryptionService.Decode(result.Buffer);
                     _ = Task.Run(() => SendEvent(new UdpMsgReceivedEvent
                     {
@@ -42,8 +43,8 @@ namespace BeghShare.Core.Services
         [EventHandler]
         public async void OnUdpMsgSend(UdpMsgSendEvent e)
         {
-            var bytes = EncryptionService.Encode($"{e.Header}{e.Data}");
-            await _udpClient.SendAsync(bytes, bytes.Length, _ipDict.GetOrAdd(e.Ip, new IPEndPoint(e.Ip, APPPORT_UDP)));
+            var bytes = EncryptionService.Encode($"{e.Header}{e.Data}",e.IsEncrypted);
+            _ = _udpClient.SendAsync(bytes, bytes.Length, _ipDict.GetOrAdd(e.Ip, new IPEndPoint(e.Ip, APPPORT_UDP)));
         }
     }
 }

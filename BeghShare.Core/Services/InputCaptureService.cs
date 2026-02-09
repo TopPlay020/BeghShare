@@ -4,6 +4,7 @@ using BeghShare.Core.Events;
 using BeghShare.Core.Events.MessageEvents;
 using BeghShare.Core.Events.UserInputEvents;
 using SharpHook;
+using SharpHook.Data;
 
 namespace BeghShare.Core.Services
 {
@@ -22,13 +23,15 @@ namespace BeghShare.Core.Services
             if (_hook != null)
                 return;
 
-            _hook = new SimpleGlobalHook();
+            _hook = new SimpleGlobalHook(GlobalHookType.Keyboard | GlobalHookType.Mouse, runAsyncOnBackgroundThread: true);
             _hook.MouseMoved += OnMouseMove;
+            _hook.MouseDragged += OnMouseDragged;
+            _hook.MouseWheel += OnMouseWheel;
             _hook.MousePressed += OnMousePressed;
             _hook.MouseReleased += OnMouseReleased;
             _hook.KeyPressed += OnKeyPressed;
             _hook.KeyReleased += OnKeyReleased;
-            _hook.Run();
+            _hook.RunAsync();
         }
 
         public void StopTracking()
@@ -50,6 +53,17 @@ namespace BeghShare.Core.Services
                 X = e.Data.X,
                 Y = e.Data.Y
             });
+        }
+        private void OnMouseWheel(object sender, MouseWheelHookEventArgs e)
+        {
+            //TODO:
+            throw new NotImplementedException();
+        }
+
+        private void OnMouseDragged(object sender, MouseHookEventArgs e)
+        {
+            //TODO:
+            throw new NotImplementedException();
         }
         private void OnMousePressed(object sender, MouseHookEventArgs e)
         {

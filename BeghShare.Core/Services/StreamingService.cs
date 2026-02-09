@@ -44,6 +44,7 @@ namespace BeghShare.Core.Services
             });
 
             WaitForUserResponse.WaitOne();
+            //TODO: here i need to get more information about the target !! for exemple his screen resolution and fps !!
             if (ResponseReceived)
             {
                 SendEvent(new TcpMsgSendEvent

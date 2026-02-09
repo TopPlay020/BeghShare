@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace BeghCore
 {
@@ -38,7 +39,7 @@ namespace BeghCore
         }
         public static void SendEvent<TMessage>(TMessage message) where TMessage : class
         {
-            WeakReferenceMessenger.Default.Send(message);
+            _ = Task.Run(() => WeakReferenceMessenger.Default.Send(message));
         }
         private static List<Type> _cachedAssemblyTypes;
         public static IEnumerable<Type> GetAssemblyTypes()

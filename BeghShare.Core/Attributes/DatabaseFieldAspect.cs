@@ -12,7 +12,8 @@ namespace BeghShare.Core.Attributes
         {
             get
             {
-                if (meta.Target.FieldOrProperty.Writeability == Writeability.ConstructorOnly)
+                //need to be fixed
+                if (meta.Target.FieldOrProperty.Writeability == Writeability.InitOnly || meta.Target.FieldOrProperty.Writeability == Writeability.ConstructorOnly)
                 {
                     var cach = meta.Proceed();
                     if (cach == null)

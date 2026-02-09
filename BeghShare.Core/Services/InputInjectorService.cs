@@ -37,6 +37,7 @@ namespace BeghShare.Core.Services
             Controled = e.PeerInfo;
         }
 
+        //TODO: I need to sync fps!!
         [EventHandler]
         public async void OnMouseMoveEvent(MouseMoveEvent e)
         {
