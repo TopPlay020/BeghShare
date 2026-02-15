@@ -1,5 +1,5 @@
 <Solution>
   <Project Path="BeghCore/BeghCore.csproj" />
   <Project Path="BeghShare.Core/BeghShare.Core.csproj" Id="1daf5ae2-5c5a-436a-8db3-7193f1f41d78" />
-  <Project Path="BeghShare/BeghShare.View.csproj" Id="b4b45559-d1e3-456f-adb6-17c570b9f36c" />
+  <Project Path="BeghShare.UI/BeghShare.UI.csproj" Id="54a96130-4ded-4a46-b794-54be9dbdd4e4" />
 </Solution>
