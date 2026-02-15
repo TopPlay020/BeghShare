@@ -56,6 +56,11 @@ namespace BeghShare.UI.Pages
             ((FrameworkElement)sender).ReleaseMouseCapture();
             ViewModel.StopDragging();
         }
+
+        private void MainItemsControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.AddMainBorder(MainItemsControl.ActualWidth, MainItemsControl.ActualHeight);
+        }
     }
 
     public partial class MonitorsPageViewModel : ObservableObject, ITransient
@@ -65,11 +70,13 @@ namespace BeghShare.UI.Pages
 
         private BorderViewModel? _currentDraggingBorder;
 
-        public MonitorsPageViewModel()
+        public void AddMainBorder(double CanvasWidth, double CanvasHeight)
         {
             var size = GetService<IScreenService>().GetResolution();
-            Borders.Add(new() { Left = 50, Top = 70, Width = 150, Height = 100, TextInside = "Main_Monitor", Resolution = $"{size.Width}x{size.Height}", IsThisMonitor = true });
-            //Borders.Add(new() { Left = 220, Top = 50, Width = 100, Height = 150, TextInside = "Other_Monitor" });
+            var renderedWidth = size.Width / 12;
+            var renderedHeight = size.Height / 12;
+            Borders.Add(new() { Left = (CanvasWidth - renderedWidth) / 2, Top = (CanvasHeight - renderedHeight) / 2, Width = renderedWidth, Height = renderedHeight, TextInside = "Main_Monitor", Resolution = $"{size.Width}x{size.Height}", IsThisMonitor = true });
+
         }
 
         public void StartDragging(BorderViewModel border)

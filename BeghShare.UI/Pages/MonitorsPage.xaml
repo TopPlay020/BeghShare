@@ -9,13 +9,13 @@
     d:DesignHeight="442"
     d:DesignWidth="575"
     mc:Ignorable="d">
-    <ItemsControl ItemsSource="{Binding Borders}">
+    <ItemsControl
+        x:Name="MainItemsControl"
+        ItemsSource="{Binding Borders}"
+        Loaded="MainItemsControl_Loaded">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-                <Canvas
-                    Name="MainCanvas"
-                    Background="Transparent"
-                    ClipToBounds="True" />
+                <Canvas Background="Transparent" ClipToBounds="True" />
             </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
 

@@ -5,13 +5,12 @@ using BeghShare.Core.Events.MessageEvents;
 using BeghShare.Core.Events.NetworkEvents;
 using BeghShare.Core.Events.UserInputEvents;
 using BeghShare.Core.Models;
-using SharpHook;
 using SharpHook.Data;
 using System.Net;
 
 namespace BeghShare.Core.Services
 {
-    public class InputInjectorService : ISingleton, IAutoStart
+    public class InputStreamingService : ISingleton, IAutoStart
     {
         private const string MOUSE_MOVE_MSG = "MouseMoveEvent:";
         private const string MOUSE_WHEEL_MSG = "MouseWheelEvent:";
@@ -23,13 +22,13 @@ namespace BeghShare.Core.Services
         public PeerInfo ControledBy;
         public PeerInfo Controled;
 
-        private EventSimulator _simulator;
+        private InputSimulatorService _simulator;
 
         [EventHandler]
         public async void StartControledBy(PeerControlMeEvent e)
         {
             ControledBy = e.PeerInfo;
-            _simulator = new EventSimulator();
+            _simulator = GetService<InputSimulatorService>();
         }
 
         [EventHandler]
@@ -38,7 +37,6 @@ namespace BeghShare.Core.Services
             Controled = e.PeerInfo;
         }
 
-        //TODO: I need to sync fps!!
         [EventHandler]
         public async void OnMouseMoveEvent(MouseMoveEvent e)
         {
@@ -117,7 +115,7 @@ namespace BeghShare.Core.Services
             var y = short.Parse(parts[1]);
 
             SendEvent(new MouseMoveEvent() { X = x, Y = y });
-            _simulator?.SimulateMouseMovement(x, y);
+            _simulator.SimulateMouseMovement(x, y);
         }
 
         [MsgEventHandler(MOUSE_WHEEL_MSG)]
@@ -130,7 +128,7 @@ namespace BeghShare.Core.Services
             var direction = (MouseWheelScrollDirection)Enum.Parse(typeof(MouseWheelScrollDirection), parts[1]);
             var scrollType = (MouseWheelScrollType)Enum.Parse(typeof(MouseWheelScrollType), parts[2]);
             SendEvent(new MouseWheelEvent() { Rotation = rotation, Direction = direction, ScrollType = scrollType });
-            _simulator?.SimulateMouseWheel(rotation, direction, scrollType);
+            _simulator.SimulateMouseWheel(rotation, direction, scrollType);
         }
         [MsgEventHandler(MOUSE_PRESSED_EVENT_MSG)]
         public async void OnMousePressedFromController(string data, IPAddress Ip)
@@ -139,7 +137,7 @@ namespace BeghShare.Core.Services
 
             var button = (MouseButton)Enum.Parse(typeof(MouseButton), data);
             SendEvent(new MousePressedEvent() { Button = button });
-            _simulator?.SimulateMousePress(button);
+            _simulator.SimulateMousePress(button);
         }
 
         [MsgEventHandler(MOUSE_RELEASED_EVENT_MSG)]
@@ -149,7 +147,7 @@ namespace BeghShare.Core.Services
 
             var button = (MouseButton)Enum.Parse(typeof(MouseButton), data);
             SendEvent(new MouseReleasedEvent() { Button = button });
-            _simulator?.SimulateMouseRelease(button);
+            _simulator.SimulateMouseRelease(button);
         }
 
         [MsgEventHandler(KEY_PRESSED_EVENT_MSG)]
@@ -159,7 +157,7 @@ namespace BeghShare.Core.Services
 
             var keyCode = (KeyCode)Enum.Parse(typeof(KeyCode), data);
             SendEvent(new KeyPressedEvent() { keyCode = keyCode });
-            _simulator?.SimulateKeyPress(keyCode);
+            _simulator.SimulateKeyPress(keyCode);
         }
 
         [MsgEventHandler(KEY_RELEASED_EVENT_MSG)]
@@ -169,7 +167,7 @@ namespace BeghShare.Core.Services
 
             var keyCode = (KeyCode)Enum.Parse(typeof(KeyCode), data);
             SendEvent(new KeyReleasedEvent() { keyCode = keyCode });
-            _simulator?.SimulateKeyRelease(keyCode);
+            _simulator.SimulateKeyRelease(keyCode);
         }
     }
 }
