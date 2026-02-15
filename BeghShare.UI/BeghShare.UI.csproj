@@ -15,10 +15,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Services\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Resource Include="Resources\**\*.*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Resource>

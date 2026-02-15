@@ -30,6 +30,9 @@ namespace BeghShare.UI
         ObservableCollection<SideMenuItemViewModel> sideMenuItems = [];
 
         [ObservableProperty]
+        SideMenuItemViewModel? selectedSideMenuItem;
+
+        [ObservableProperty]
         object? currentPage;
 
         [ObservableProperty]
@@ -61,7 +64,11 @@ namespace BeghShare.UI
         [RelayCommand]
         public void OnChangePage(Type pageType)
         {
+            if (SelectedSideMenuItem?.PageType == pageType) return;
+            SelectedSideMenuItem?.IsSelected = false;
             CurrentPage = GetService(pageType);
+            SelectedSideMenuItem = SideMenuItems.First(x => x.PageType == pageType);
+            SelectedSideMenuItem.IsSelected = true;
         }
         [EventHandler]
         private void OnMouseMove(MouseMoveEvent e)

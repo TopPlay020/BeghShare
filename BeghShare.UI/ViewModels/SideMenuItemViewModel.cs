@@ -17,5 +17,7 @@ namespace BeghShare.UI.ViewModels
         public Type pageType;
         [ObservableProperty]
         public IRelayCommand<Type> command;
+        [ObservableProperty]
+        public bool isSelected;
     }
 }

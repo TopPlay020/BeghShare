@@ -7,19 +7,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="MainWindow"
     Width="800"
-    Height="500"
+    Height="520"
     d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
     ResizeMode="NoResize"
     ThemeMode="Dark"
     mc:Ignorable="d">
-    <Grid
-        Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
-        ColumnDefinitions="auto,*"
-        RowDefinitions="*,auto">
+    <Grid ColumnDefinitions="auto,*" RowDefinitions="*,auto">
         <Border
             Grid.Row="0"
             Grid.Column="0"
-            Padding="5">
+            Padding="5,5,5,5">
             <Grid RowDefinitions="auto,*">
                 <Grid
                     Grid.Row="0"
@@ -57,20 +54,18 @@
                         <ItemsControl ItemsSource="{Binding SideMenuItems}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Top" />
+                                    <StackPanel Orientation="Vertical" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button
-                                        Margin="0"
+                                        Margin="0,0,0,5"
                                         Padding="0"
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Stretch"
-                                        BorderThickness="0"
                                         Command="{Binding Command}"
-                                        CommandParameter="{Binding PageType}"
-                                        DockPanel.Dock="Top">
+                                        CommandParameter="{Binding PageType}">
                                         <Grid HorizontalAlignment="Stretch" ColumnDefinitions="50,*">
                                             <Viewbox
                                                 Grid.Column="0"
@@ -97,7 +92,7 @@
         <Border
             Grid.Column="1"
             Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="10,0,0,0">
+            CornerRadius="10,0,0,10">
             <ContentPresenter Content="{Binding CurrentPage}" />
         </Border>
         <Grid
@@ -117,7 +112,10 @@
                         Text="{Binding KeyDownText}"
                         TextAlignment="Center" />
                 </StackPanel>
-                <Border BorderBrush="{DynamicResource ControlFillColorDefaultBrush}" BorderThickness="2" />
+                <Border
+                    BorderBrush="{DynamicResource ControlFillColorDefaultBrush}"
+                    BorderThickness="2"
+                    CornerRadius="1" />
                 <StackPanel Margin="10,0" Orientation="Horizontal">
                     <TextBlock Text="X:" />
                     <TextBlock
@@ -125,7 +123,10 @@
                         Text="{Binding MouseX}"
                         TextAlignment="Center" />
                 </StackPanel>
-                <Border BorderBrush="{DynamicResource ControlFillColorDefaultBrush}" BorderThickness="2" />
+                <Border
+                    BorderBrush="{DynamicResource ControlFillColorDefaultBrush}"
+                    BorderThickness="2"
+                    CornerRadius="1" />
                 <StackPanel Margin="10,0" Orientation="Horizontal">
                     <TextBlock Text="Y:" />
                     <TextBlock

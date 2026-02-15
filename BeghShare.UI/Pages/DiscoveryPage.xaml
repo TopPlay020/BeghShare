@@ -7,7 +7,7 @@
     xmlns:local="clr-namespace:BeghShare.UI.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DataContext="{d:DesignInstance Type=local:DiscoveryPageViewModel}"
-    d:DesignHeight="412"
+    d:DesignHeight="442"
     d:DesignWidth="575"
     mc:Ignorable="d">
     <Grid Margin="10" RowDefinitions="auto,5,auto,5,*">
@@ -28,13 +28,13 @@
                 Command="{Binding SearchCommand}"
                 IsEnabled="{Binding CanDiscover}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Search" />
                     <TextBlock
-                        Margin="5,0,0,0"
+                        Margin="0,0,5,0"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         FontFamily="{DynamicResource FontAwesome}"
                         Text="&#xf002;" />
+                    <TextBlock Text="Search" />
                 </StackPanel>
             </Button>
         </Grid>
@@ -44,13 +44,13 @@
             Command="{Binding DiscoveryCommand}"
             IsEnabled="{Binding CanDiscover}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Network Discovery" />
                 <TextBlock
-                    Margin="5,0,0,0"
+                    Margin="0,0,5,0"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontFamily="{DynamicResource FontAwesome}"
                     Text="&#xe695;" />
+                <TextBlock Text="Network Discovery" />
             </StackPanel>
         </Button>
         <StackPanel Grid.Row="4">
