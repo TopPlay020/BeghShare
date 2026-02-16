@@ -11,16 +11,15 @@ namespace BeghShare.Core.Services
     public class InputCaptureService : ISingleton, IAutoStart
     {
         private SimpleGlobalHook _hook;
-        //public InputCaptureService()
-        //{
-        //    Task.Run(StartTracking);
-        //}
+
+        private bool _suppressEvent = false;
 
         [EventHandler]
         public void OnStartControling(PeerStartControlingEvent _)
         {
             Task.Run(StartTracking);
         }
+
 
         public void StartTracking()
         {
@@ -45,6 +44,18 @@ namespace BeghShare.Core.Services
         }
 
         [EventHandler]
+        public void OnMouseExitOSEvent(MouseExitOSEvent _)
+        {
+            _suppressEvent = true;
+        }
+
+        [EventHandler]
+        public void OnMouseEnterOSEvent(MouseEnterOSEvent _)
+        {
+            _suppressEvent = false;
+        }
+
+        [EventHandler]
         public void OnApplicationExit(MainWindowCloseEvent _)
         {
             StopTracking();
@@ -57,6 +68,8 @@ namespace BeghShare.Core.Services
                 X = e.Data.X,
                 Y = e.Data.Y
             });
+            if (_suppressEvent)
+                e.SuppressEvent = true;
         }
         private void OnMouseWheel(object sender, MouseWheelHookEventArgs e)
         {
@@ -66,22 +79,32 @@ namespace BeghShare.Core.Services
                 Direction = e.Data.Direction,
                 ScrollType = e.Data.Type
             });
+            if (_suppressEvent)
+                e.SuppressEvent = true;
         }
         private void OnMousePressed(object sender, MouseHookEventArgs e)
         {
             SendEvent(new MousePressedEvent() { Button = e.Data.Button });
+            if (_suppressEvent)
+                e.SuppressEvent = true;
         }
         private void OnMouseReleased(object sender, MouseHookEventArgs e)
         {
             SendEvent(new MouseReleasedEvent() { Button = e.Data.Button });
+            if (_suppressEvent)
+                e.SuppressEvent = true;
         }
         private void OnKeyPressed(object sender, KeyboardHookEventArgs e)
         {
             SendEvent(new KeyPressedEvent() { keyCode = e.Data.KeyCode });
+            if (_suppressEvent)
+                e.SuppressEvent = true;
         }
         private void OnKeyReleased(object sender, KeyboardHookEventArgs e)
         {
             SendEvent(new KeyReleasedEvent() { keyCode = e.Data.KeyCode });
+            if (_suppressEvent)
+                e.SuppressEvent = true;
         }
     }
 }
