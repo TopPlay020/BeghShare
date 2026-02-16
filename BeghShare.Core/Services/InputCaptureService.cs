@@ -20,6 +20,11 @@ namespace BeghShare.Core.Services
             Task.Run(StartTracking);
         }
 
+        [EventHandler]
+        public async void StartControledBy(PeerControlMeEvent e)
+        {
+            StopTracking();
+        }
 
         public void StartTracking()
         {

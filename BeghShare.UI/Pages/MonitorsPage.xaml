@@ -15,7 +15,12 @@
         Loaded="MainItemsControl_Loaded">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-                <Canvas Background="Transparent" ClipToBounds="True" />
+                <Canvas
+                    Background="Transparent"
+                    ClipToBounds="True"
+                    MouseDown="Canvas_MouseDown"
+                    MouseMove="Canvas_MouseMove"
+                    MouseUp="Canvas_MouseUp" />
             </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
 
@@ -33,7 +38,7 @@
                     Height="{Binding Height}"
                     BorderBrush="{DynamicResource ControlElevationBorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="5"
+                    CornerRadius="2"
                     MouseDown="Border_MouseDown"
                     MouseMove="Border_MouseMove"
                     MouseUp="Border_MouseUp">
