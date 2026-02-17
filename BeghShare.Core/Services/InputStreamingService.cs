@@ -10,6 +10,7 @@ using System.Net;
 
 namespace BeghShare.Core.Services
 {
+    //TODO: I need to Adjust that class !! start using osexit and osenter !!!
     public class InputStreamingService : ISingleton, IAutoStart
     {
         private const string MOUSE_MOVE_MSG = "MouseMoveEvent:";

@@ -1,6 +1,7 @@
 ﻿using BeghCore;
 using BeghCore.Attributes;
 using BeghShare.Core.Events;
+using BeghShare.Core.Models;
 using BeghShare.Core.Services;
 using BeghShare.UI.Attributes;
 using BeghShare.UI.ViewModels;
@@ -10,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using static BeghShare.Core.Services.ScreenManagementService;
 
 namespace BeghShare.UI.Pages
 {
@@ -126,15 +128,15 @@ namespace BeghShare.UI.Pages
             var renderedWidth = Width / 12;
             var renderedHeight = Height / 12;
 
-            AddBorder(Width, Height, "Main Monitor", true);
+            AddBorder(Width, Height, "Main Monitor", null, true);
             foreach (var data in GetService<ScreenManagementService>().GetPeerScreenData())
-                AddBorder(data.peerScreenData.Width, data.peerScreenData.Height, data.peerInfo.Name);
+                AddBorder(data.peerScreenData.Width, data.peerScreenData.Height, data.peerInfo.Name, data.peerInfo);
         }
 
         [EventHandler]
         public void OnPeerScreenDataReceived(PeerScreenDataReceivedEvent e)
         {
-            AddBorder(e.peerScreenData.Width, e.peerScreenData.Height, e.peerInfo.Name);
+            AddBorder(e.peerScreenData.Width, e.peerScreenData.Height, e.peerInfo.Name, e.peerInfo);
         }
 
         public void StartDragging(BorderViewModel border)
@@ -279,14 +281,16 @@ namespace BeghShare.UI.Pages
             _currentDraggingBorder = null;
         }
 
-        public void AddBorder(int width, int height, string Title, bool IsThisMonitor = false)
+        private BorderViewModel? MainBorder;
+
+        public void AddBorder(int width, int height, string Title, PeerInfo? peerInfo, bool IsThisMonitor = false)
         {
             var renderedWidth = width / 12.0;
             var renderedHeight = height / 12.0;
 
             var (left, top) = FindValidPosition(renderedWidth, renderedHeight);
 
-            Borders.Add(new()
+            var newBorder = new BorderViewModel
             {
                 Left = left,
                 Top = top,
@@ -295,7 +299,31 @@ namespace BeghShare.UI.Pages
                 TextInside = Title,
                 Resolution = $"{width}x{height}",
                 IsThisMonitor = IsThisMonitor
-            });
+            };
+
+            Borders.Add(newBorder);
+
+            if (IsThisMonitor)
+                MainBorder = newBorder;
+            else
+            {
+                var position = GetRelativePositionOfBorder(newBorder);
+                GetService<ScreenManagementService>().SetPeerPosition(peerInfo, position);
+            }
+
+        }
+
+        private MonitorPosition GetRelativePositionOfBorder(BorderViewModel border)
+        {
+            if (border.Left <= MainBorder!.Left)
+                return MonitorPosition.Left;
+            else if (border.Left >= MainBorder!.Left + MainBorder.Width)
+                return MonitorPosition.Right;
+            else if (border.Top <= MainBorder!.Top)
+                return MonitorPosition.Top;
+            else if (border.Top >= MainBorder!.Top + MainBorder.Height)
+                return MonitorPosition.Bottom;
+            return 0;
         }
 
         private (double left, double top) FindValidPosition(double width, double height)
