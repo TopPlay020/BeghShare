@@ -1,4 +1,6 @@
 ﻿using BeghCore;
+using BeghCore.Attributes;
+using BeghShare.Core.Events;
 using BeghShare.Core.Services;
 using BeghShare.UI.Attributes;
 using BeghShare.UI.ViewModels;
@@ -94,7 +96,7 @@ namespace BeghShare.UI.Pages
 
         private void MainItemsControl_Loaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.AddMainBorder(MainItemsControl.ActualWidth, MainItemsControl.ActualHeight);
+            ViewModel.SetCanvasSize(MainItemsControl.ActualWidth, MainItemsControl.ActualHeight);
         }
     }
 
@@ -116,27 +118,23 @@ namespace BeghShare.UI.Pages
         private double _canvasWidth;
         private double _canvasHeight;
 
-        public void AddMainBorder(double CanvasWidth, double CanvasHeight)
+        public void SetCanvasSize(double CanvasWidth, double CanvasHeight)
         {
             _canvasWidth = CanvasWidth;
             _canvasHeight = CanvasHeight;
             var (Width, Height) = GetService<IScreenService>().GetResolution();
             var renderedWidth = Width / 12;
             var renderedHeight = Height / 12;
-            Borders.Add(new()
-            {
-                Left = (_canvasWidth - renderedWidth) / 2,
-                Top = (_canvasHeight - renderedHeight) / 2,
-                Width = renderedWidth,
-                Height = renderedHeight,
-                TextInside = "Main_Monitor",
-                Resolution = $"{Width}x{Height}",
-                IsThisMonitor = true
-            });
 
-            AddBorder(1920, 1080);
-            AddBorder(1920, 1080);
-            AddBorder(1920, 1080);
+            AddBorder(Width, Height, "Main Monitor", true);
+            foreach (var data in GetService<ScreenManagementService>().GetPeerScreenData())
+                AddBorder(data.peerScreenData.Width, data.peerScreenData.Height, data.peerInfo.Name);
+        }
+
+        [EventHandler]
+        public void OnPeerScreenDataReceived(PeerScreenDataReceivedEvent e)
+        {
+            AddBorder(e.peerScreenData.Width, e.peerScreenData.Height, e.peerInfo.Name);
         }
 
         public void StartDragging(BorderViewModel border)
@@ -281,7 +279,7 @@ namespace BeghShare.UI.Pages
             _currentDraggingBorder = null;
         }
 
-        public void AddBorder(int width, int height)
+        public void AddBorder(int width, int height, string Title, bool IsThisMonitor = false)
         {
             var renderedWidth = width / 12.0;
             var renderedHeight = height / 12.0;
@@ -294,9 +292,9 @@ namespace BeghShare.UI.Pages
                 Top = top,
                 Width = renderedWidth,
                 Height = renderedHeight,
-                TextInside = $"Monitor_{Borders.Count + 1}",
+                TextInside = Title,
                 Resolution = $"{width}x{height}",
-                IsThisMonitor = false
+                IsThisMonitor = IsThisMonitor
             });
         }
 

@@ -36,7 +36,7 @@ namespace BeghShare.Core.Services
         public void OnBroadCastResponseMsg(string Data, IPAddress Ip)
         {
             if (IsLocalAddress(Ip)) return;
-            var peer = new PeerInfo { Name = Data, IP = Ip, IsOnline = true };
+            var peer = new PeerInfo { Name = Data, IP = Ip};
             if (!Peers.Exists(p => p.IP.Equals(peer.IP)))
             {
                 Peers.Add(peer);

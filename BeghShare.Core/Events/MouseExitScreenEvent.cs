@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BeghShare.Core.Events
+﻿namespace BeghShare.Core.Events
 {
     public class MouseExitScreenEvent
     {
@@ -11,5 +7,6 @@ namespace BeghShare.Core.Events
         public const int UP = 2;
         public const int DOWN = 3;
         public int ExitSide { get; set; }
+        public int ExitPosition { get; set; }
     }
 }

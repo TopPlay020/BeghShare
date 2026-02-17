@@ -22,13 +22,25 @@ namespace BeghShare.Core.Services
         public async void OnMouseMoveEvent(MouseMoveEvent e)
         {
             if (e.X > ScreenWidth)
-                SendEvent(new MouseExitScreenEvent() { ExitSide = MouseExitScreenEvent.RIGHT });
+                SendEvent(new MouseExitScreenEvent() { ExitSide = MouseExitScreenEvent.RIGHT, ExitPosition = e.Y });
             else if (e.X < 0)
-                SendEvent(new MouseExitScreenEvent() { ExitSide = MouseExitScreenEvent.LEFT });
+                SendEvent(new MouseExitScreenEvent() { ExitSide = MouseExitScreenEvent.LEFT, ExitPosition = e.Y });
             else if (e.Y > ScreenHeight)
-                SendEvent(new MouseExitScreenEvent() { ExitSide = MouseExitScreenEvent.DOWN });
+                SendEvent(new MouseExitScreenEvent() { ExitSide = MouseExitScreenEvent.DOWN, ExitPosition = e.X });
             else if (e.Y < 0)
-                SendEvent(new MouseExitScreenEvent() { ExitSide = MouseExitScreenEvent.UP });
+                SendEvent(new MouseExitScreenEvent() { ExitSide = MouseExitScreenEvent.UP, ExitPosition = e.X });
+        }
+
+        [EventHandler]
+        public async void OnMouseExitOSEvent(MouseExitOSEvent e)
+        {
+            //TODO: Implement logic for when the mouse exits the operating system
+        }
+
+        [EventHandler]
+        public async void OnMouseEnterOSEvent(MouseEnterOSEvent e)
+        {
+            //TODO: Implement logic for when the mouse enters the operating system
         }
     }
 }
